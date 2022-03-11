@@ -6,9 +6,7 @@ import androidx.room.Room
 import database.CrimeDatabase
 import database.migration_1_2
 import java.io.File
-import java.lang.IllegalStateException
 import java.util.*
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 private const val DATABASE_NAME = "crime-database"
