@@ -13,7 +13,9 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import android.content.Context
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.FileProvider
@@ -170,7 +172,9 @@ class CrimeFragment : Fragment() {
             }
         }
 
-        titleField.addTextChangedListener(titleWatcher)
+        titleField.apply {
+            addTextChangedListener(titleWatcher)
+        }
 
         solvedSwitch.apply {
             setOnCheckedChangeListener { _, isChecked ->
@@ -266,7 +270,12 @@ class CrimeFragment : Fragment() {
     }
 
     private fun updateUI() {
-        titleField.setText(crime.title)
+        titleField.apply {
+            setText(crime.title)
+            if (text.isBlank()) {
+                showSoftKeyboard(this)
+            }
+        }
         dateButton.text =
             SimpleDateFormat(DATE_PATTERN, Locale.getDefault()).format(crime.date)
         timeButton.text =
@@ -314,6 +323,13 @@ class CrimeFragment : Fragment() {
 
         return getString(R.string.crime_report,
             crime.title, dateString, timeString, solvedString, suspect)
+    }
+
+    private fun showSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            val imm: InputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     companion object {
