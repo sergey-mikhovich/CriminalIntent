@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">IntentoCriminal</string>
-    <string name="crime_title">El crimen título</string>
-    <string name="crime_date">El crimen fecha</string>
     <string name="crime_handcuffs_no_solved_description">El crimen no está resuelto</string>
     <string name="crime_handcuffs_solved_description">El crimen está resuelto</string>
     <string name="crime_title_hint">Introduzca un título para el crimen.</string>
-    <string name="crime_title_label">Título</string>
-    <string name="crime_details_label">Detalles</string>
-    <string name="crime_solved_label">Solucionado</string>
-    <string name="new_crime">Crimen Nuevo</string>
-    <string name="delete_crime">Eliminar crimen</string>
-    <string name="select_all_crimes"> Seleccionar todas crímenes</string>
+    <string name="crime_title_text">Título</string>
+    <string name="crime_details_text">Detalles</string>
+    <string name="crime_solved_text">Solucionado</string>
+    <string name="crime_date_text">Fecha</string>
+    <string name="crime_time_text">Tiempo</string>
+    <string name="crime_suspect_text">Sospechoso</string>
+    <string name="new_crime_text">Crimen Nuevo</string>
+    <string name="delete_crime_text">Eliminar crimen</string>
+    <string name="select_all_crimes_text"> Seleccionar todas crímenes</string>
     <string name="crime_list_empty">Lista está vacía</string>
-    <string name="crime_suspect_text">Elegir Sospechoso</string>
+    <string name="crime_choose_suspect_text">Elegir Sospechoso</string>
     <string name="crime_report_text">Enviar el Informe del Crimen</string>
     <string name="crime_report">%1$s! El crimen fue descubierto el %2$s a las %3$s. %4$s o %5$s</string>
     <string name="crime_report_solved">El caso está resuelto</string>

@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 private const val TAG = "CrimeListFragment"
-private const val DATE_PATTERN = "EEEE, MMM dd, yyyy HH:mm"
+private const val DATE_PATTERN = "EEEE, dd MMMM yyyy HH:mm"
 
 class CrimeListFragment : Fragment() {
 
@@ -24,9 +24,11 @@ class CrimeListFragment : Fragment() {
         fun onCrimeSelected(crimeId: UUID)
     }
 
-    private var callbacks: Callbacks? = null
     private lateinit var crimeRecyclerView: RecyclerView
+    private lateinit var menuNewCrime: MenuItem
+    private lateinit var menuDeleteCrime: MenuItem
     private var adapter: CrimeAdapter? = CrimeAdapter()
+    private var callbacks: Callbacks? = null
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
@@ -51,7 +53,11 @@ class CrimeListFragment : Fragment() {
 
         crimeRecyclerView =
             view.findViewById(R.id.crime_recycler_view) as RecyclerView
-        crimeRecyclerView.layoutManager = LinearLayoutManager(context)
+        crimeRecyclerView.layoutManager =
+            LinearLayoutManager(context).apply {
+                reverseLayout = true
+                stackFromEnd = true
+            }
 
         crimeRecyclerView.adapter = adapter
 
@@ -78,11 +84,14 @@ class CrimeListFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_crime_list, menu)
+
+        menuNewCrime = menu.findItem(R.id.menu_new_crime)
+        menuDeleteCrime = menu.findItem(R.id.menu_delete_crime)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.new_crime -> {
+            R.id.menu_new_crime -> {
                 val crime = Crime()
                 crimeListViewModel.addCrime(crime)
                 callbacks?.onCrimeSelected(crime.id)
@@ -97,16 +106,17 @@ class CrimeListFragment : Fragment() {
     }
 
     private inner class CrimeHolder(view: View)
-        : RecyclerView.ViewHolder(view), View.OnClickListener {
+        : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener {
 
         private lateinit var crime: Crime
 
-        private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
-        private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
-        private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
+        private val titleTextView: TextView = itemView.findViewById(R.id.crime_title_text_view)
+        private val dateTextView: TextView = itemView.findViewById(R.id.crime_date_text_view)
+        private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved_image_view)
 
         init {
             itemView.setOnClickListener(this)
+            itemView.setOnLongClickListener(this)
         }
 
         fun bind(crime: Crime) {
@@ -125,8 +135,12 @@ class CrimeListFragment : Fragment() {
             }
         }
 
-        override fun onClick(p0: View?) {
+        override fun onClick(item: View?) {
             callbacks?.onCrimeSelected(crime.id)
+        }
+
+        override fun onLongClick(item: View?): Boolean {
+            return true
         }
     }
 

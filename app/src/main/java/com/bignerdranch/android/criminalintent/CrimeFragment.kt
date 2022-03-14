@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -23,7 +24,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-private const val DATE_PATTERN = "EEEE, MMM dd, yyyy"
+private const val DATE_PATTERN = "EEEE, dd MMMM yyyy"
 private const val TIME_PATTERN = "HH:mm"
 private const val ARG_CRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
@@ -39,7 +40,7 @@ class CrimeFragment : Fragment() {
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
     private lateinit var timeButton: Button
-    private lateinit var solvedCheckBox: CheckBox
+    private lateinit var solvedSwitch: SwitchCompat
     private lateinit var reportButton: Button
     private lateinit var suspectButton: Button
     private lateinit var photoButton: ImageButton
@@ -69,7 +70,7 @@ class CrimeFragment : Fragment() {
                         }
 
                         curs.moveToFirst()
-                        val suspect = curs.getString(0)
+                        val suspect = curs.getString(0).replace("\n", " ")
                         crime.suspect = suspect
                         crimeDetailViewModel.saveCrime(crime)
                         suspectButton.text = suspect
@@ -112,14 +113,14 @@ class CrimeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
-        titleField = view.findViewById(R.id.crime_title) as EditText
-        dateButton = view.findViewById(R.id.crime_date) as Button
-        timeButton = view.findViewById(R.id.crime_time) as Button
-        solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
-        reportButton = view.findViewById(R.id.crime_report) as Button
-        suspectButton = view.findViewById(R.id.crime_suspect) as Button
-        photoButton = view.findViewById(R.id.crime_camera) as ImageButton
-        photoView = view.findViewById(R.id.crime_photo) as ImageView
+        titleField = view.findViewById(R.id.crime_title_edit_text) as EditText
+        dateButton = view.findViewById(R.id.crime_date_button) as Button
+        timeButton = view.findViewById(R.id.crime_time_button) as Button
+        solvedSwitch = view.findViewById(R.id.crime_solved_switch) as SwitchCompat
+        reportButton = view.findViewById(R.id.crime_report_button) as Button
+        suspectButton = view.findViewById(R.id.crime_suspect_button) as Button
+        photoButton = view.findViewById(R.id.crime_camera_image_Button) as ImageButton
+        photoView = view.findViewById(R.id.crime_photo_image_view) as ImageView
 
         return view
     }
@@ -165,13 +166,13 @@ class CrimeFragment : Fragment() {
             }
 
             override fun afterTextChanged(p0: Editable?) {
-
+                reportButton.isEnabled = crime.title.isNotBlank()
             }
         }
 
         titleField.addTextChangedListener(titleWatcher)
 
-        solvedCheckBox.apply {
+        solvedSwitch.apply {
             setOnCheckedChangeListener { _, isChecked ->
                 crime.isSolved = isChecked
             }
@@ -189,6 +190,9 @@ class CrimeFragment : Fragment() {
             }
         }
 
+        reportButton.apply {
+            isEnabled = crime.title.isNotBlank()
+        }
         reportButton.setOnClickListener {
             Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
@@ -248,7 +252,11 @@ class CrimeFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        crimeDetailViewModel.saveCrime(crime)
+        if (crime.title.isBlank()) {
+            crimeDetailViewModel.deleteCrime(crime)
+        } else {
+            crimeDetailViewModel.saveCrime(crime)
+        }
     }
 
     override fun onDetach() {
@@ -263,7 +271,7 @@ class CrimeFragment : Fragment() {
             SimpleDateFormat(DATE_PATTERN, Locale.getDefault()).format(crime.date)
         timeButton.text =
             SimpleDateFormat(TIME_PATTERN, Locale.getDefault()).format(crime.date)
-        solvedCheckBox.apply {
+        solvedSwitch.apply {
             isChecked = crime.isSolved
             jumpDrawablesToCurrentState()
         }

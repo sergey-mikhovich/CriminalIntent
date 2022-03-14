@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color when the row is selected -->
+    <item  android:state_enabled="false" android:drawable="@color/blue_xxlight" />
+    <!-- Standard background color -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/blue_xlight" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+</selector>
