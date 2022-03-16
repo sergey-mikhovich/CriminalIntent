@@ -1,4 +1,4 @@
-package database
+package com.bignerdranch.android.criminalintent.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

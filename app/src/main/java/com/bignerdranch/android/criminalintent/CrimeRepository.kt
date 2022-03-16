@@ -3,8 +3,8 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import database.CrimeDatabase
-import database.migration_1_2
+import com.bignerdranch.android.criminalintent.database.CrimeDatabase
+import com.bignerdranch.android.criminalintent.database.migration_1_2
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
