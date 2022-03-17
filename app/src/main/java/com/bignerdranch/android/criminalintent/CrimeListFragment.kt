@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,6 +30,8 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
 
     private lateinit var tracker: SelectionTracker<String>
     private lateinit var crimeRecyclerView: RecyclerView
+    private lateinit var emptyTextView: TextView
+    private lateinit var addCrimeButton: FloatingActionButton
     private var adapter: CrimeAdapter? = CrimeAdapter()
     private var callbacks: Callbacks? = null
     private var actionMode: ActionMode? = null
@@ -57,6 +60,8 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
 
         crimeRecyclerView =
             view.findViewById(R.id.crime_recycler_view) as RecyclerView
+        emptyTextView = view.findViewById(R.id.empty_text_view) as TextView
+        addCrimeButton = view.findViewById(R.id.add_crime_fab) as FloatingActionButton
         crimeRecyclerView.layoutManager =
             LinearLayoutManager(context).apply {
                 reverseLayout = true
@@ -108,6 +113,12 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
                 updateUI(crimes)
             }
         }
+
+        addCrimeButton.setOnClickListener {
+            val crime = Crime()
+            crimeListViewModel.addCrime(crime)
+            callbacks?.onCrimeSelected(crime.id)
+        }
     }
 
     override fun onDetach() {
@@ -115,24 +126,15 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
         callbacks = null
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_crime_list_add, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_new_crime -> {
-                val crime = Crime()
-                crimeListViewModel.addCrime(crime)
-                callbacks?.onCrimeSelected(crime.id)
-                true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
-    }
-
     private fun updateUI(crimes: List<Crime>) {
+        if (crimes.isNullOrEmpty()) {
+            crimeRecyclerView.visibility = View.GONE
+            emptyTextView.visibility = View.VISIBLE
+        } else {
+            crimeRecyclerView.visibility = View.VISIBLE
+            emptyTextView.visibility = View.GONE
+        }
+
         adapter?.submitList(crimes)
     }
 
@@ -181,7 +183,7 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
         override fun getItemCount(): Int = currentList.size
 
         inner class CrimeHolder(view: View)
-            : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener {
+            : RecyclerView.ViewHolder(view), View.OnClickListener {
 
             private lateinit var crime: Crime
 
@@ -191,7 +193,6 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
 
             init {
                 itemView.setOnClickListener(this)
-                itemView.setOnLongClickListener(this)
             }
 
             fun bind(crime: Crime) {
@@ -227,17 +228,6 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
             override fun onClick(item: View?) {
                 callbacks?.onCrimeSelected(crime.id)
             }
-
-            override fun onLongClick(item: View?): Boolean {
-
-                return true
-            }
-        }
-    }
-
-    companion object {
-        fun newInstance(): CrimeListFragment {
-            return CrimeListFragment()
         }
     }
 
@@ -251,17 +241,17 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         return when (item!!.itemId) {
             R.id.menu_delete_crime -> {
-                var selected = adapter?.currentList?.filter {
+                val selected = adapter?.currentList?.filter {
                     tracker.selection.contains(it.id.toString())
                 }
 
                 val crimes = adapter?.currentList?.toMutableList()
-                if (crimes?.get(0) == selected?.get(0)) {
-                    selected = selected?.subList(1, selected.size)
-                }
 
                 selected?.let {
                     crimes?.removeAll(selected)
+                    for (crime in selected) {
+                        crimeListViewModel.deleteCrime(crime)
+                    }
                 }
 
                 crimes?.let {
@@ -279,5 +269,11 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
     override fun onDestroyActionMode(p0: ActionMode?) {
         tracker.clearSelection()
         actionMode = null
+    }
+
+    companion object {
+        fun newInstance(): CrimeListFragment {
+            return CrimeListFragment()
+        }
     }
 }
