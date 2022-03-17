@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/menu_new_crime"
-        android:icon="@drawable/ic_menu_add"
-        android:title="@string/new_crime_text"
-        app:showAsAction="ifRoom|withText"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/menu_delete_crime"
         android:icon="@drawable/ic_menu_delete"
         android:title="@string/delete_crime_text"
-        android:visible="false"
         app:showAsAction="ifRoom|withText"/>
 
     <item
