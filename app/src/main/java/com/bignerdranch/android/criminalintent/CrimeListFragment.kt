@@ -1,15 +1,14 @@
 package com.bignerdranch.android.criminalintent
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.appcompat.view.ActionMode
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,31 +18,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
 
-private const val TAG = "CrimeListFragment"
 private const val DATE_PATTERN = "EEEE, dd MMMM yyyy HH:mm"
 
 class CrimeListFragment : Fragment(), ActionMode.Callback {
-
-    interface Callbacks {
-        fun onCrimeSelected(crimeId: UUID)
-    }
 
     private lateinit var tracker: SelectionTracker<String>
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var emptyTextView: TextView
     private lateinit var addCrimeButton: FloatingActionButton
     private var adapter: CrimeAdapter? = CrimeAdapter()
-    private var callbacks: Callbacks? = null
     private var actionMode: ActionMode? = null
-
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProvider(this)[CrimeListViewModel::class.java]
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        callbacks = context as Callbacks
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,7 +96,6 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
             viewLifecycleOwner
         ) { crimes ->
             crimes?.let {
-                Log.i(TAG, "Got crimes ${crimes.size}")
                 updateUI(crimes)
             }
         }
@@ -117,13 +103,14 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
         addCrimeButton.setOnClickListener {
             val crime = Crime()
             crimeListViewModel.addCrime(crime)
-            callbacks?.onCrimeSelected(crime.id)
+            onCrimeSelected(crime.id)
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        callbacks = null
+    private fun onCrimeSelected(id: UUID) {
+        val crimeId = id.toString()
+        val action = CrimeListFragmentDirections.actionCrimeListFragmentToCrimeFragment(crimeId)
+        view?.findNavController()?.navigate(action)
     }
 
     private fun updateUI(crimes: List<Crime>) {
@@ -226,7 +213,7 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
                 }
 
             override fun onClick(item: View?) {
-                callbacks?.onCrimeSelected(crime.id)
+                onCrimeSelected(crime.id)
             }
         }
     }
@@ -269,11 +256,5 @@ class CrimeListFragment : Fragment(), ActionMode.Callback {
     override fun onDestroyActionMode(p0: ActionMode?) {
         tracker.clearSelection()
         actionMode = null
-    }
-
-    companion object {
-        fun newInstance(): CrimeListFragment {
-            return CrimeListFragment()
-        }
     }
 }

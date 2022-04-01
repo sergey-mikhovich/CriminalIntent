@@ -22,19 +22,21 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val DATE_PATTERN = "EEEE, dd MMMM yyyy"
 private const val TIME_PATTERN = "HH:mm"
-private const val ARG_CRIME_ID = "crime_id"
-private const val DIALOG_DATE = "DialogDate"
-private const val DIALOG_TIME = "DialogTime"
-private const val REQUEST_DATE = "RequestDate"
-private const val BUNDLE_DATE = "BundleDate"
 
 class CrimeFragment : Fragment() {
+
+    companion object {
+        const val REQUEST_DATE = "RequestDate"
+        const val BUNDLE_DATE = "BundleDate"
+    }
 
     private lateinit var crime: Crime
     private lateinit var photoFile: File
@@ -47,6 +49,8 @@ class CrimeFragment : Fragment() {
     private lateinit var suspectButton: Button
     private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
+
+    private val args: CrimeFragmentArgs by navArgs()
 
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProvider(this)[CrimeDetailViewModel::class.java]
@@ -98,9 +102,6 @@ class CrimeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        crime = Crime()
-        val crimeId: UUID = arguments?.getSerializable(ARG_CRIME_ID) as UUID
-        crimeDetailViewModel.loadCrime(crimeId)
 
         setFragmentResultListener(REQUEST_DATE) { _, bundle ->
             val date = bundle.getSerializable(BUNDLE_DATE) as Date
@@ -129,6 +130,11 @@ class CrimeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        crime = Crime()
+        val crimeId: UUID = UUID.fromString(args.crimeId)
+        crimeDetailViewModel.loadCrime(crimeId)
+
         crimeDetailViewModel.crimeLiveData.observe(
             viewLifecycleOwner
         ) { crime ->
@@ -183,15 +189,15 @@ class CrimeFragment : Fragment() {
         }
 
         dateButton.setOnClickListener {
-            DatePickerFragment.newInstance(crime.date).apply {
-                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE)
-            }
+            val crimeDate = crime.date.time
+            val action = CrimeFragmentDirections.actionCrimeFragmentToDatePickerFragment(crimeDate)
+            view?.findNavController()?.navigate(action)
         }
 
         timeButton.setOnClickListener {
-            TimePickerFragment.newInstance(crime.date).apply {
-                show(this@CrimeFragment.parentFragmentManager, DIALOG_TIME)
-            }
+            val crimeDate = crime.date.time
+            val action = CrimeFragmentDirections.actionCrimeFragmentToTimePickerFragment(crimeDate)
+            view?.findNavController()?.navigate(action)
         }
 
         reportButton.apply {
@@ -329,17 +335,6 @@ class CrimeFragment : Fragment() {
         if (view.requestFocus()) {
             val imm: InputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-        }
-    }
-
-    companion object {
-        fun newInstance(crimeId: UUID): CrimeFragment {
-            val args = Bundle().apply {
-                putSerializable(ARG_CRIME_ID, crimeId)
-            }
-            return CrimeFragment().apply {
-                arguments = args
-            }
         }
     }
 }

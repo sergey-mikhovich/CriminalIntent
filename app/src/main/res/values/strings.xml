@@ -26,4 +26,5 @@
     <string name="crime_photo_no_image_description">Crime scene photo (not set)</string>
     <string name="crime_photo_image_description">Crime scene photo scene (set)</string>
     <string name="action_selected">%d selected</string>
+    <string name="avatar_image_description">Avatar</string>
 </resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/crimeListFragment">
+
+    <fragment
+        android:id="@+id/crimeListFragment"
+        android:name="com.bignerdranch.android.criminalintent.CrimeListFragment"
+        android:label="CrimeListFragment" >
+        <action
+            android:id="@+id/action_crimeListFragment_to_crimeFragment"
+            app:destination="@id/crimeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/crimeFragment"
+        android:name="com.bignerdranch.android.criminalintent.CrimeFragment"
+        android:label="CrimeFragment" >
+        <action
+            android:id="@+id/action_crimeFragment_to_datePickerFragment"
+            app:destination="@id/datePickerFragment" />
+        <action
+            android:id="@+id/action_crimeFragment_to_timePickerFragment"
+            app:destination="@id/timePickerFragment" />
+        <argument
+            android:name="crime_id"
+            app:argType="string" />
+    </fragment>
+    <dialog
+        android:id="@+id/datePickerFragment"
+        android:name="com.bignerdranch.android.criminalintent.DatePickerFragment"
+        android:label="DatePickerFragment" >
+        <argument
+            android:name="crime_date"
+            app:argType="long" />
+    </dialog>
+    <dialog
+        android:id="@+id/timePickerFragment"
+        android:name="com.bignerdranch.android.criminalintent.TimePickerFragment"
+        android:label="TimePickerFragment" >
+        <argument
+            android:name="crime_date"
+            app:argType="long" />
+    </dialog>
+</navigation>
